@@ -13,100 +13,56 @@ macro bind(def, element)
     end
 end
 
-# ╔═╡ aeefaf63-7704-4553-99fb-40ee023066c7
-begin
-	using Combinatorics
-	using Random
-	using PlutoUI
-	using StatsPlots
-	using Plots
-	using Statistics
-end
+# ╔═╡ d48369f8-f0c4-11eb-2fa3-ab01806ea014
+using Distributions, StatsPlots, PlutoUI
 
-# ╔═╡ 4cd603f6-c5a8-11eb-0ca4-eb96025b7c96
-md"""
-# Tung mũ
+# ╔═╡ 7d2bb341-8bfe-4eea-92c3-958f8c7c5b56
+@bind λ Slider(0.01:1:100, show_value=true)
 
-## Vấn đề
+# ╔═╡ fe244817-4717-4617-b036-dcb78a726434
+plot(Poisson(λ))
 
-Có $n$ người bạn thân đội mũ giống hệt nhau.
-Họ đồng loạt tung mũ lên trời và mỗi người chụp lại đúng một cái.
-Ai chụp được cái mũ nào là hoàn toàn ngẫu nhiên.
-Hãy dự đoán số người $X$ chụp lại được đúng cái mũ mình đã đội lúc đầu,
-với $n=1,2,3.$
+# ╔═╡ f970c254-5a81-4caf-852c-478b5ec77d3b
+Z = Normal(0, 1)
 
+# ╔═╡ c41a7b9f-c2fb-4bb4-9f0e-fdd2767b7243
+p = .8
 
-## Phân tích
+# ╔═╡ 803d3667-6480-4ac3-a31c-a872f68e7c5d
+a = 1-(1-p)/2
 
-Trường hợp $n=1$, chỉ có đúng một khả năng duy nhất có thể xảy ra là $X=1,$ hiển nhiên giá trị trung bình và phương sai sẽ là
+# ╔═╡ d06a4508-3eec-4665-a9ac-b3e8a752124e
+q = quantile(Z, a)
 
-$\mathbb{E}[X] = 1, \mathbb{V}[X] = 0.$
+# ╔═╡ c1b5b360-f1f0-4a99-9818-95bde4b037f1
+θ, σ, n = 22, 1, 100
 
-Nếu $n\geq 2$, có $n!$ phương án gán (hoán vị) mũ cho mọi người, $X$ nhận các giá trị $0,1,\dots,n$, và có thể chứng minh được rằng
+# ╔═╡ 5916fd0a-bc81-4a1a-9823-11bca4d1a72f
+θ - q*σ/sqrt(n), θ + q*σ/sqrt(n)
 
-$\mathbb{E}[X] = 1, \mathbb{V}[X] = 1.$
+# ╔═╡ fa9ee758-0378-4a68-b06b-160083528e6b
+# 14. Exercise: Natural estimators
+X = [1, 3, -1, 2, 0]
 
-Khi $n$ tương đối nhỏ, ta có thể liệt kê cụ thể tất cả các phương án để kiểm chứng mệnh đề trên.
+# ╔═╡ 3a4d047e-d6f9-4e24-b9f2-0429aef81916
+X.^2
 
-## Thí nghiệm
+# ╔═╡ 7ad37ec0-7f1f-4dfb-b139-52a85b639fb3
+mean(X.^2)
 
-Dưới đây giả sử $n$ khá lớn, ta sẽ thực hiện $m$ thí nghiệm tung mũ, với $m$ tương đối nhỏ so với số hoán vị $n!$, và khảo sát giá trị $x$ mà $X$ nhận được trong từng thí nghiệm.
-"""
+# ╔═╡ 7fa28f1f-ff75-4cf5-a6de-9bfa28cb0963
 
-# ╔═╡ 3b3cca81-8265-48e4-936a-1aee97be3fa7
-md"""Tỷ lệ số lần thí nghiệm trên tổng số hoán vị $\frac{m}{n!}$ là
-"""
-
-# ╔═╡ ad4e1909-f441-44af-be0e-6319ae4dc3aa
-@bind n Slider(2:1:10_000, show_value=true, default=1_000)
-
-# ╔═╡ f311bde5-128c-46e7-9ae8-a76b361e85c7
-@bind m Slider(100:100:10_000, show_value=true, default=1_000)
-
-# ╔═╡ 5d7324e7-32a5-4110-956f-9ce28e4c6387
-m/factorial(big(n))
-
-# ╔═╡ 5822fa84-1be9-4884-a93d-acd87e72dba5
-hats = 1:n
-
-# ╔═╡ d149737e-ce6f-4362-b67a-cb3d09f1448e
-xs = begin
-	# permutated_hats = permutations(hats)
-	permutated_hats = (randperm(n) for i in 1:m)
-	[sum(ph .== hats) for ph in permutated_hats]
-end
-
-# ╔═╡ ca6318ce-3393-4132-81c1-033e66dd1a89
-begin
-	diagrams = [
-		histogram(xs, legend = false),
-		boxplot(xs, legend = false),
-		scatter(xs, legend = false),
-		# density(xs, legend = false)
-	]
-	plot(diagrams..., layout=(3,1))
-end
-
-# ╔═╡ a0f88ad8-1934-411d-8d63-cdbfa18221ea
-𝔼 = mean(xs)
-
-# ╔═╡ f59e2d67-72f1-490c-9874-887f5f9fa492
-𝕍 = std(xs)
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
-Combinatorics = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
-Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-Random = "9a3f8284-a2c9-5f02-9a11-845980a1fd5c"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 StatsPlots = "f3b207a7-027a-5e70-b257-86293d7955fd"
 
 [compat]
-Combinatorics = "~1.0.2"
-Plots = "~1.20.0"
-PlutoUI = "~0.7.9"
+Distributions = "~0.23.12"
+PlutoUI = "~0.7.1"
 StatsPlots = "~0.14.26"
 """
 
@@ -195,11 +151,6 @@ git-tree-sha1 = "417b0ed7b8b838aa6ca0a87aadf1bb9eb111ce40"
 uuid = "5ae59095-9a9b-59fe-a467-6f913c188581"
 version = "0.12.8"
 
-[[Combinatorics]]
-git-tree-sha1 = "08c8b6831dc00bfea825826be0bc8336fc369860"
-uuid = "861a8166-3701-5b0c-9a16-15d98fcdc6aa"
-version = "1.0.2"
-
 [[Compat]]
 deps = ["Base64", "Dates", "DelimitedFiles", "Distributed", "InteractiveUtils", "LibGit2", "Libdl", "LinearAlgebra", "Markdown", "Mmap", "Pkg", "Printf", "REPL", "Random", "SHA", "Serialization", "SharedArrays", "Sockets", "SparseArrays", "Statistics", "Test", "UUIDs", "Unicode"]
 git-tree-sha1 = "344f143fa0ec67e47917848795ab19c6a455f32c"
@@ -223,9 +174,9 @@ version = "1.7.0"
 
 [[DataStructures]]
 deps = ["Compat", "InteractiveUtils", "OrderedCollections"]
-git-tree-sha1 = "7d9d316f04214f7efdbb6398d545446e246eff02"
+git-tree-sha1 = "4437b64df1e0adccc3e5d1adbc3ac741095e4677"
 uuid = "864edb3b-99cc-5e75-8d2d-829cb0a9cfe8"
-version = "0.18.10"
+version = "0.18.9"
 
 [[DataValueInterfaces]]
 git-tree-sha1 = "bfc1187b79289637fa0ef6d4436ebdfe6905cbd6"
@@ -257,10 +208,10 @@ deps = ["Random", "Serialization", "Sockets"]
 uuid = "8ba89e20-285c-5b6f-9357-94700520ee1b"
 
 [[Distributions]]
-deps = ["FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "Statistics", "StatsBase", "StatsFuns"]
-git-tree-sha1 = "3889f646423ce91dd1055a76317e9a1d3a23fff1"
+deps = ["FillArrays", "LinearAlgebra", "PDMats", "Printf", "QuadGK", "Random", "SparseArrays", "SpecialFunctions", "StaticArrays", "Statistics", "StatsBase", "StatsFuns"]
+git-tree-sha1 = "501c11d708917ca09ce357bed163dbaf0f30229f"
 uuid = "31c24e10-a181-5473-b8eb-7969acd0382f"
-version = "0.25.11"
+version = "0.23.12"
 
 [[DocStringExtensions]]
 deps = ["LibGit2"]
@@ -309,10 +260,10 @@ uuid = "f5851436-0d7a-5f13-b9de-f02708fd171a"
 version = "3.3.9+8"
 
 [[FillArrays]]
-deps = ["LinearAlgebra", "Random", "SparseArrays", "Statistics"]
-git-tree-sha1 = "8c8eac2af06ce35973c3eadb4ab3243076a408e7"
+deps = ["LinearAlgebra", "Random", "SparseArrays"]
+git-tree-sha1 = "502b3de6039d5b78c76118423858d981349f3823"
 uuid = "1a297f60-69ca-5386-bcde-b61e274b549b"
-version = "0.12.1"
+version = "0.9.7"
 
 [[FixedPointNumbers]]
 deps = ["Statistics"]
@@ -364,9 +315,9 @@ version = "0.58.1+0"
 
 [[GeometryBasics]]
 deps = ["EarCut_jll", "IterTools", "LinearAlgebra", "StaticArrays", "StructArrays", "Tables"]
-git-tree-sha1 = "58bcdf5ebc057b085e58d95c138725628dd7453c"
+git-tree-sha1 = "4136b8a5668341e58398bb472754bff4ba0456ff"
 uuid = "5c1252a2-5f33-56bf-86c9-59e7332b4326"
-version = "0.4.1"
+version = "0.3.12"
 
 [[Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -593,9 +544,9 @@ version = "0.3.1"
 
 [[Missings]]
 deps = ["DataAPI"]
-git-tree-sha1 = "4ea90bd5d3985ae1f9a908bd4500ae88921c5ce7"
+git-tree-sha1 = "f8c673ccc215eb50fcadb285f522420e29e69e1c"
 uuid = "e1d29d7a-bbdc-5cf2-9ac0-f12de2c33e28"
-version = "1.0.0"
+version = "0.4.5"
 
 [[Mmap]]
 uuid = "a63ad114-7e13-5084-954f-fe012c677804"
@@ -674,10 +625,10 @@ uuid = "2f80f16e-611a-54ab-bc61-aa92de5b98fc"
 version = "8.44.0+0"
 
 [[PDMats]]
-deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse"]
-git-tree-sha1 = "4dd403333bcf0909341cfe57ec115152f937d7d8"
+deps = ["LinearAlgebra", "SparseArrays", "SuiteSparse", "Test"]
+git-tree-sha1 = "95a4038d1011dfdbde7cecd2ad0ac411e53ab1bc"
 uuid = "90014a1f-27ba-587c-ab20-58faa44d9150"
-version = "0.11.1"
+version = "0.10.1"
 
 [[Parsers]]
 deps = ["Dates"]
@@ -714,10 +665,10 @@ uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 version = "1.20.0"
 
 [[PlutoUI]]
-deps = ["Base64", "Dates", "InteractiveUtils", "JSON", "Logging", "Markdown", "Random", "Reexport", "Suppressor"]
-git-tree-sha1 = "44e225d5837e2a2345e69a1d1e01ac2443ff9fcb"
+deps = ["Base64", "Dates", "InteractiveUtils", "Logging", "Markdown", "Random", "Suppressor"]
+git-tree-sha1 = "45ce174d36d3931cd4e37a47f93e07d1455f038d"
 uuid = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
-version = "0.7.9"
+version = "0.7.1"
 
 [[Preferences]]
 deps = ["TOML"]
@@ -831,16 +782,16 @@ deps = ["LinearAlgebra", "Random"]
 uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[SpecialFunctions]]
-deps = ["ChainRulesCore", "LogExpFunctions", "OpenSpecFun_jll"]
-git-tree-sha1 = "a322a9493e49c5f3a10b50df3aedaf1cdb3244b7"
+deps = ["OpenSpecFun_jll"]
+git-tree-sha1 = "d8d8b8a9f4119829410ecd706da4cc8594a1e020"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "1.6.1"
+version = "0.10.3"
 
 [[StaticArrays]]
 deps = ["LinearAlgebra", "Random", "Statistics"]
-git-tree-sha1 = "3240808c6d463ac46f1c1cd7638375cd22abbccb"
+git-tree-sha1 = "da4cf579416c81994afd6322365d00916c79b8ae"
 uuid = "90137ffa-7385-5640-81b9-e52037218182"
-version = "1.2.12"
+version = "0.12.5"
 
 [[Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -853,9 +804,9 @@ version = "1.0.0"
 
 [[StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
-git-tree-sha1 = "fed1ec1e65749c4d96fc20dd13bea72b55457e62"
+git-tree-sha1 = "2f6792d523d7448bbe2fec99eca9218f06cc746d"
 uuid = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
-version = "0.33.9"
+version = "0.33.8"
 
 [[StatsFuns]]
 deps = ["LogExpFunctions", "Rmath", "SpecialFunctions"]
@@ -870,10 +821,10 @@ uuid = "f3b207a7-027a-5e70-b257-86293d7955fd"
 version = "0.14.26"
 
 [[StructArrays]]
-deps = ["Adapt", "DataAPI", "StaticArrays", "Tables"]
-git-tree-sha1 = "000e168f5cc9aded17b6999a560b7c11dda69095"
+deps = ["Adapt", "DataAPI", "Tables"]
+git-tree-sha1 = "44b3afd37b17422a62aea25f04c1f7e09ce6b07f"
 uuid = "09ab397b-f2b6-538f-b94a-2f83cf4a842a"
-version = "0.6.0"
+version = "0.5.1"
 
 [[SuiteSparse]]
 deps = ["Libdl", "LinearAlgebra", "Serialization", "SparseArrays"]
@@ -1150,16 +1101,18 @@ version = "0.9.1+5"
 """
 
 # ╔═╡ Cell order:
-# ╠═aeefaf63-7704-4553-99fb-40ee023066c7
-# ╟─4cd603f6-c5a8-11eb-0ca4-eb96025b7c96
-# ╟─ca6318ce-3393-4132-81c1-033e66dd1a89
-# ╟─a0f88ad8-1934-411d-8d63-cdbfa18221ea
-# ╟─f59e2d67-72f1-490c-9874-887f5f9fa492
-# ╟─3b3cca81-8265-48e4-936a-1aee97be3fa7
-# ╠═5d7324e7-32a5-4110-956f-9ce28e4c6387
-# ╠═ad4e1909-f441-44af-be0e-6319ae4dc3aa
-# ╠═f311bde5-128c-46e7-9ae8-a76b361e85c7
-# ╠═5822fa84-1be9-4884-a93d-acd87e72dba5
-# ╠═d149737e-ce6f-4362-b67a-cb3d09f1448e
+# ╠═d48369f8-f0c4-11eb-2fa3-ab01806ea014
+# ╠═7d2bb341-8bfe-4eea-92c3-958f8c7c5b56
+# ╠═fe244817-4717-4617-b036-dcb78a726434
+# ╠═f970c254-5a81-4caf-852c-478b5ec77d3b
+# ╠═c41a7b9f-c2fb-4bb4-9f0e-fdd2767b7243
+# ╠═803d3667-6480-4ac3-a31c-a872f68e7c5d
+# ╠═d06a4508-3eec-4665-a9ac-b3e8a752124e
+# ╠═c1b5b360-f1f0-4a99-9818-95bde4b037f1
+# ╠═5916fd0a-bc81-4a1a-9823-11bca4d1a72f
+# ╠═fa9ee758-0378-4a68-b06b-160083528e6b
+# ╠═3a4d047e-d6f9-4e24-b9f2-0429aef81916
+# ╠═7ad37ec0-7f1f-4dfb-b139-52a85b639fb3
+# ╠═7fa28f1f-ff75-4cf5-a6de-9bfa28cb0963
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

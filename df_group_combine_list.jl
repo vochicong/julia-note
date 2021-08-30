@@ -9,7 +9,6 @@ begin
 	using DataFrames
 	using DataFrameMacros
 	using Chain
-	using Statistics 
 end
 
 # ╔═╡ 2d859c13-78af-469f-9ad6-d4b8030aaeb7
@@ -18,7 +17,10 @@ df = DataFrame(g=[1,2,3,1,2,1], e=[10,20,30,11,21,12])
 # ╔═╡ 854f0600-fb43-4cbb-9404-06b0722d2eb1
 df_grouped_elements = @chain df begin
 	@groupby(:g)
-	@combine(:e = [collect(:e)])
+	@combine(
+		:e_sum = sum(:e),
+		:e_list = [collect(:e)]
+	)
 end
 
 # ╔═╡ ab4c7172-c254-4d14-81a6-89867833e685
@@ -33,7 +35,6 @@ PLUTO_PROJECT_TOML_CONTENTS = """
 Chain = "8be319e6-bccf-4806-a6f7-6fae938471bc"
 DataFrameMacros = "75880514-38bc-4a95-a458-c2aea5a3a702"
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
 Chain = "~0.4.8"
@@ -300,7 +301,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╔═╡ Cell order:
 # ╠═dfe3adda-00e3-11ec-1f57-75da8078176e
 # ╠═854f0600-fb43-4cbb-9404-06b0722d2eb1
-# ╟─2d859c13-78af-469f-9ad6-d4b8030aaeb7
+# ╠═2d859c13-78af-469f-9ad6-d4b8030aaeb7
 # ╠═ab4c7172-c254-4d14-81a6-89867833e685
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
